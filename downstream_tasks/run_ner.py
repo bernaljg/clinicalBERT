@@ -195,7 +195,7 @@ class DataProcessor(object):
         polyposis   I-Disease
         ...
         """
-        with open(input_file) as f:
+        with open(input_file, encoding='utf-8') as f:
             lines = []
             words = []
             labels = []
@@ -236,14 +236,14 @@ class DataProcessor(object):
             yield l[i:i + n]
 
     def write_cv_to_file(self, evaluation, test, n):
-        with open(os.path.join(FLAGS.data_dir, str(n) + '_eval'),'w') as w:
+        with open(os.path.join(FLAGS.data_dir, str(n) + '_eval'),'w',encoding='utf-8') as w:
             for example in evaluation:
                 for t, l in zip(example.tokens, example.labels):
                     w.write("%s %s\n" %(t, l))
                 w.write("\n")
                 
 
-        with open(os.path.join(FLAGS.data_dir, str(n) + '_test'),'w') as test_w:
+        with open(os.path.join(FLAGS.data_dir, str(n) + '_test'),'w',encoding='utf-8') as test_w:
             for test_example in test:
                 for t, l in zip(test_example.tokens, test_example.labels):
 
@@ -427,13 +427,13 @@ def write_tokens(tokens,tok_to_orig_map, mode, cv_iter):
     #print('MODE: %s' %mode)
     if mode == "test" or mode == "eval":
         path = os.path.join(FLAGS.output_dir, str(cv_iter) + "_token_"+mode+".txt")
-        wf = open(path,'a')
+        wf = open(path,'a',encoding='utf-8')
         for token in tokens:
             if token!="**NULL**":
                 wf.write(token+'\n')
         wf.write('\n')
         wf.close()
-        with open(os.path.join(FLAGS.output_dir, str(cv_iter) + "_tok_to_orig_map_"+mode+".txt"),'a') as w:
+        with open(os.path.join(FLAGS.output_dir, str(cv_iter) + "_tok_to_orig_map_"+mode+".txt"),'a',encoding='utf-8') as w:
             w.write("-1\n") #correspond to [CLS]
             for ind in tok_to_orig_map:
                 w.write(str(ind)+'\n')
@@ -446,7 +446,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     label_map = {}
     for (i, label) in enumerate(label_list,1):
         label_map[label] = i
-    with open(os.path.join(FLAGS.output_dir, 'label2id.pkl'),'wb') as w:
+    with open(os.path.join(FLAGS.output_dir, 'label2id.pkl'),'wb',encoding='utf-8') as w:
         pickle.dump(label_map,w)
     orig_tokens = example.tokens
     orig_labels = example.labels
@@ -686,7 +686,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 
 def read_tok_file(token_path):
     tokens = list()
-    with open(token_path, 'r') as reader:
+    with open(token_path, 'r', encoding='utf-8') as reader:
         for line in reader:
             tok = line.strip()
             if tok == '[CLS]':
@@ -829,7 +829,7 @@ def main(_):
                 drop_remainder=eval_drop_remainder)
             result = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
             output_eval_file = os.path.join(FLAGS.output_dir, "eval_results.txt")
-            with open(output_eval_file, "w") as writer:
+            with open(output_eval_file, "w", encoding='utf-8') as writer:
                 tf.logging.info("***** Eval results *****")
                 for key in sorted(result.keys()):
                     tf.logging.info("  %s = %s", key, str(result[key]))
@@ -842,11 +842,11 @@ def main(_):
             eval_result = estimator.predict(input_fn=eval_input_fn)
             output_predict_file = os.path.join(FLAGS.output_dir, str(cv_iter) + "_label_eval.txt")
 
-            with open(os.path.join(FLAGS.output_dir, 'label2id.pkl'),'rb') as rf:
+            with open(os.path.join(FLAGS.output_dir, 'label2id.pkl'),'rb',encoding='utf-8') as rf:
                 label2id = pickle.load(rf)
                 id2label = {value:key for key,value in label2id.items()}
 
-            with open(output_predict_file,'w') as p_writer:
+            with open(output_predict_file,'w',encoding='utf-8') as p_writer:
                 for pidx, prediction in enumerate(eval_result):
                     slen = len(eval_tokens[pidx])
                     output_line = "\n".join(id2label[id] if id!=0 else id2label[3] for id in prediction['prediction'][:slen]) + "\n" #change to O tag
@@ -889,11 +889,11 @@ def main(_):
             result = estimator.predict(input_fn=predict_input_fn)
             output_predict_file = os.path.join(FLAGS.output_dir, str(cv_iter) + "_label_test.txt")
 
-            with open(os.path.join(FLAGS.output_dir, 'label2id.pkl'),'rb') as rf:
+            with open(os.path.join(FLAGS.output_dir, 'label2id.pkl'),'rb',encoding='utf-8') as rf:
                 label2id = pickle.load(rf)
                 id2label = {value:key for key,value in label2id.items()}
 
-            with open(output_predict_file,'w') as p_writer:
+            with open(output_predict_file,'w',encoding='utf-8') as p_writer:
                 for pidx, prediction in enumerate(result):
                     slen = len(test_tokens[pidx])
                     output_line = "\n".join(id2label[id] if id!=0 else id2label[3] for id in prediction['prediction'][:slen]) + "\n" #change to O tag

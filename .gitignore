@@ -1,3 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+pretrained_*
+downstream_tasks/i2b2*
+downstream_tasks/output

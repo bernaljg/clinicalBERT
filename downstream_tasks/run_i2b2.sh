@@ -1,19 +1,18 @@
 #!/bin/bash
 
 #update these to the path of the bert model and the path to the NER data
-BERT_DIR=/PATH/TO/BERT/MODEL #clinical bert, biobert, or bert
+BERT_DIR=/users/PAA0201/bernaljg/projects/baselines/clinicalBERT/pretrained_bert_tf/biobert_pretrain_output_disch_100000 #clinical bert, biobert, or bert
 
 #path to NER data. Make sure to preprocess data according to BIO format first.
 #You could use the scripts in the i2b2_preprocessing folder to preprocess the i2b2 data
-NER_DIR=/PATH/TO/NER/DATA/DIRECTORY
-
+NER_DIR=/users/PAA0201/bernaljg/projects/baselines/clinicalBERT/downstream_tasks/i2b2_preprocessing/i2b2_2010_relations/processed/merged
 
 for EPOCHS in 2 3 4 ; do 
     for LEARN_RATE in 2e-5 3e-5 5e-5 ; do
         for BATCH_SZ in 16 32 ; do 
 
 
-            OUTPUT_DIR=/PATH/TO/OUTPUT/DIRECTORY #update this to the output directory you want
+            OUTPUT_DIR=output #update this to the output directory you want
             mkdir -p $OUTPUT_DIR
 
             # You can change the task_name to 'i2b2_2014', 'i2b2_2010', 'i2b2_2006', or 'i2b2_2012'
@@ -22,12 +21,12 @@ for EPOCHS in 2 3 4 ; do
             # run_ner.py is adapted from kyzhouhzau's BERT-NER github and the BioBERT repo
             python run_ner.py \
             	--do_train=True \
-            	--do_eval=True \
-            	--do_predict=True \
-                --task_name='i2b2_2006' \
+            	--do_eval=False \
+            	--do_predict=False \
+                --task_name='i2b2_2010' \
                 --vocab_file=$BERT_DIR/vocab.txt \
                 --bert_config_file=$BERT_DIR/bert_config.json \
-                --init_checkpoint=$BERT_DIR/bert_model.ckpt \
+                --init_checkpoint=$BERT_DIR/model.ckpt-100000 \
                 --num_train_epochs=$EPOCHS \
                 --learning_rate=$LEARN_RATE \
                 --train_batch_size=$BATCH_SZ \
